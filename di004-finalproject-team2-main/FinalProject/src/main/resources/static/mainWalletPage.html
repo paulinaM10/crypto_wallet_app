@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T2 Crypto - Buy & Sell Digital Assets</title>
+
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+
+</head>
+
+    <style>
+    
+    #walletSection {
+        margin-top: 50px;
+        text-align: center; 
+    }
+
+    #walletTitle {
+        font-size: 50px;
+        font-weight: bold; 
+       color: #007bff; 
+        margin-bottom: 20px;
+    }
+
+    #balance {
+        font-size: 60px; 
+        font-weight: bold; 
+        color: white; 
+        margin-bottom: 30px; 
+    }
+    
+    .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    }
+    
+    .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+#userCoinsContainer {
+    margin-top: 10px;
+}
+
+.userCoinsLabel {
+    font-size: 20px;
+    font-weight: bold;
+    color: #dc3545; 
+}
+#removeMoneyButton{
+font-size: 18px;
+}
+
+.rounded-button {
+    font-size: 20px; 
+    font-weight: bold;
+    color: white;
+    padding: 20px 30px;
+    border-radius: 50px; 
+    margin: 10px;
+    width: 200px; 
+    display: inline-block; 
+    text-align: center; 
+}
+    
+
+    </style>
+    <script>
+  
+        var userId;
+        var walletId;
+
+        function displayUserCoins() {
+            $.ajax({
+                type: "GET",
+                url: "/api/usercoins/" + userId,
+                dataType: "json",
+                success: function(data) {
+                    $("#userCoins").empty();
+                    $.each(data, function(index, userCoin) {
+                        $("#userCoins").append(
+                            '<li>' + userCoin.coinSymbol + ': ' + userCoin.quantity.toFixed(2) + '</li>'
+                        );
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error:", error);
+                    alert("Failed to fetch user's coins. Please try again.");
+                }
+            });
+        }
+
+        
+        $(document).ready(function() {
+            $("#addMoneyButton").on("click", function() {
+                addMoney();
+            });
+
+            $("#removeMoneyButton").on("click", function() {
+                removeMoney();
+            });
+
+            displayWalletInfo(); 
+        });
+        
+        
+        
+
+        function displayWalletInfo() {
+            $.ajax({
+                type: "GET",
+                url: "/users/walletInfo",
+                dataType: "json",
+                success: function(data) {
+                    $("#walletId").text("Wallet ID: " + data.walletId);
+                    $("#balance").text("Balance: $" + data.balance.toFixed(2));
+
+                    userId = data.userId;
+                    walletId = data.walletId;
+                    displayUserCoins();
+                    
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error:", error);
+                    alert("Failed to fetch wallet information. Please try again.");
+                }
+            });
+        
+        }
+        
+
+        
+        function addMoney() {
+
+            var amountInput = prompt("Enter the amount to add:");
+
+            if (amountInput === null || amountInput.trim() === '') {
+                alert("Please enter an amount.");
+                return;
+            }
+            var amount = parseFloat(amountInput.trim());
+
+          
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid positive amount.");
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/wallet/addmoney",
+                data: JSON.stringify({ userId: userId, walletId: walletId, amount: amount }),
+                contentType: "application/json",
+                success: function(response) {
+                    displayWalletInfo();
+                    $("#addMoneyModal").modal("hide");
+                    alert("Money added successfully.");
+                },
+                error: function(xhr, status, error) {
+                    console.log("Error:", error);
+                    alert(xhr.responseText); 
+                }
+            });
+        }
+
+        
+        function removeMoney() {
+        	var amount = parseFloat(prompt("Enter the amount to remove:"));
+
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid positive amount.");
+                return;
+            }
+            
+            $.ajax({
+                type: "POST",
+                url: "/wallet/removemoney",
+                data: JSON.stringify({ userId: userId, walletId: walletId, amount: amount }),
+                contentType: "application/json",
+                success: function () {
+                    displayWalletInfo();
+                    $("#removeMoneyModal").modal("hide");
+                    alert("Money removed successfully.");
+                },
+
+                error: function (xhr, status, error) {
+                    console.log("Error:", error);
+                    alert("An error occurred: " + xhr.responseText);
+                }
+              
+                });
+            }
+        
+        $(document).ready(function() {
+            displayWalletInfo();
+        });
+        
+    </script>
+</head>
+<body>
+
+  <header class="header" data-header>
+    <div class="container">
+
+      <a href="#" class="logo">
+        <img src="crypto-logo.png" width="32" height="32" alt="Cryptex logo">
+       T2 Crypto
+      </a>
+
+      <nav class="navbar" data-navbar>
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="HomePage.html" class="navbar-link active" data-nav-link>Homepage</a>
+          </li>
+        
+          <li class="navbar-item">
+            <a href="account.html" class="navbar-link" data-nav-link>My Account</a>
+          </li>
+
+         <li class="navbar-item">
+            <a href="mainwalletpage.html" class="navbar-link" data-nav-link>Wallet</a>
+          </li>
+          
+           <li class="navbar-item">
+            <a href="explore_coins.html" class="navbar-link" data-nav-link>Explore Coins</a>
+          </li>
+          
+           <li class="navbar-item">
+            <a href="TransactionsPage.html" class="navbar-link" data-nav-link>My Transactions</a>
+          </li>
+          
+
+        </ul>
+      </nav>
+      </div>
+      </header>
+
+
+<main>
+    <article>
+    
+    <section class="section hero" >
+ <div class="container" style="padding: 20px;">
+    <div id="headers">
+        <h1 id="walletTitle">Wallet</h1>
+        <h2 id="balance">Balance: $0.00</h2>
+        <div id="userCoinsContainer">
+            <p class="userCoinsLabel">Coins and Quantity</p>
+            <ul id="userCoins"></ul>
+        </div>
+    </div>
+    <div id="walletButtons">
+        <button id="addMoneyButton" class="btn btn-primary rounded-button" data-toggle="modal" data-target="#addMoneyModal">Add Money</button>
+        <button id="removeMoneyButton" class="btn btn-danger rounded-button" data-toggle="modal" data-target="#removeMoneyModal">Remove Money</button>
+    </div>
+</div>
+</section>
+</article>
+</main>
+
+  <footer class="footer">
+
+    <div class="footer-bottom">
+      <div class="container">
+
+        <p class="copyright">
+          &copy; 2022 T2 Crypto All Rights Reserved by <a href="#" class="copyright-link">Team Two</a>
+        </p>
+
+        <ul class="social-list">
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-facebook"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-twitter"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-linkedin"></ion-icon>
+            </a>
+          </li>
+
+        </ul>
+
+      </div>
+    </div>
+
+  </footer>
+
+
+
+
+
+
+  <!-- 
+    - custom js link
+  -->
+  <script src="script.js" defer></script>
+
+  <!-- 
+    - ionicon link
+  -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+
+
+</body>
+</html>

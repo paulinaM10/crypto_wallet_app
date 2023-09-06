@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+
+  
+  <link rel="stylesheet" href="style.css">
+
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+  //added  
+  var userId;
+        $(document).ready(function() {
+            $('#loginForm').submit(function(e) {
+                e.preventDefault();
+                var email = $('#email').val();
+                var password = $('#password').val();
+
+                $.ajax({
+                    url: 'http://localhost:8088/users/login', 
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        email: $('#email').val(),
+                        userPassword: $('#password').val()
+                    }),
+                    success: function(res) {
+               
+                        window.location.href = 'HomePage.html';
+                    },
+                    error: function(err) {
+                        alert('Error logging in. Please check your email and password.');
+                    }
+                });
+
+            });
+        });
+    </script>
+</head>
+<body>
+<header class="header" data-header>
+    <div class="container">
+
+      <a href="#" class="logo">
+        <img src="crypto-logo.png" width="32" height="32" alt="Cryptex logo">
+       T2 Crypto
+      </a>
+
+      <nav class="navbar" data-navbar>
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="/LandingPage.html" class="navbar-link active" data-nav-link>Homepage</a>
+          </li>
+
+		 
+         <li class="navbar-item">
+            <a href="/SignUp.html" class="navbar-link" data-nav-link>Sign Up</a>
+          </li>
+
+        </ul>
+      </nav>
+
+      <button class="nav-toggle-btn" aria-label="Toggle menu" data-nav-toggler>
+        <span class="line line-1"></span>
+        <span class="line line-2"></span>
+        <span class="line line-3"></span>
+      </button>
+
+      <a href="/LogIn.html" class="btn btn-outline">Log in</a>
+
+    </div>
+  </header>
+  
+<main>
+    <article>
+    
+    <section class="section hero" >
+    <div class="container">
+       
+    <form id="loginForm">
+        <label for="email" class="h3 list-title" style="margin-top: 20px;">Email:</label><br>
+        <input type="email" id="email" name="email" required style="margin-top: 20px;"><br>
+        <label for="password" class="h3 list-title" style="margin-top: 20px;">Password:</label><br>
+        <input type="password" id="password" name="password" required style="margin-top: 20px;"><br>
+
+       
+         <button type="submit" value="Login" class="btn btn-primary" style="margin-top: 20px;">Log In</button>
+    </form>
+    <figure class="about-banner">
+            <img src="about-banner.png" width="748" height="436" loading="lazy" alt="about banner"
+              class="w-100">
+          </figure>
+
+    </div>
+    </section>
+    </article>
+  </main>
+  
+  
+<div style= "margin-top: auto" >
+  <footer class="footer">
+
+        <p class="copyright">
+          &copy; 2023 T2 Crypto All Rights Reserved by <a href="#" class="copyright-link">Team Two</a>
+        </p>
+
+        <ul class="social-list">
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-facebook"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-twitter"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-linkedin"></ion-icon>
+            </a>
+          </li>
+
+        </ul>
+
+      
+
+</footer>
+</div>
+ <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  
+
+  </body>
+
+</html>

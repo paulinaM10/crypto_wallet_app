@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Homepage</title>
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="shortcut icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+   
+  <style>
+    
+    .container {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.input-group.mb-3 > div {
+  margin-right: 30px;
+}
+
+.section.market {
+  margin-top: -100px;
+  
+}
+</style>
+    
+</head>
+
+<body>
+
+  <header class="header" data-header>
+
+    <div class="container">
+
+      <a href="#" class="logo">
+        <img src="crypto-logo.png" width="32" height="32" alt="Cryptex logo">
+       T2 Crypto
+      </a>
+      
+      <nav class="navbar" data-navbar>
+        <ul class="navbar-list">
+
+          <li class="navbar-item">
+            <a href="HomePage.html" class="navbar-link active" data-nav-link>Homepage</a>
+          </li>
+        
+          <li class="navbar-item">
+            <a href="account.html" class="navbar-link" data-nav-link>My Account</a>
+          </li>
+
+         <li class="navbar-item">
+            <a href="mainwalletpage.html" class="navbar-link" data-nav-link>Wallet</a>
+          </li>
+          
+           <li class="navbar-item">
+            <a href="explore_coins.html" class="navbar-link" data-nav-link>Explore Coins</a>
+          </li>
+          
+           <li class="navbar-item">
+            <a href="TransactionsPage.html" class="navbar-link" data-nav-link>My Transactions</a>
+          </li>
+          
+           <li class="navbar-item">
+           <a href="#" class="navbar-link" id="logoutButton">Log Out</a></li>
+         
+
+        </ul>
+      </nav>
+      </div>
+      </header>
+          
+         
+  
+
+ <main>
+  <article>
+    <section class="section market">
+      <div class="container mt-4">
+      
+        <div class="input-group mb-3" style="width: 80%; margin: 100px; display: flex; flex-wrap: wrap; justify-content: center; align-items: center;">
+          <div style="margin-right: 10px;">
+            <input type="text" class="form-control" id="symbolSearch" style="border-radius: 25px; font-size: 30px; width: 100%; background-color: rgba(255, 255, 255, 0.5);">
+          </div>
+
+          <div style="margin-right: 10px;">
+            <button class="btn btn-outline" type="button" id="searchButton">Search</button>
+          </div>
+
+          <div style="margin-right: 10px;">
+            <button class="btn btn-outline" type="button" id="showAllButton">Show All</button>
+          </div>
+        </div>
+
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <button id="previousButton" class="btn btn-outline">Previous</button>
+          <table class="table market-table" id="apiData">
+            <!-- Table content -->
+          </table>
+          <button id="nextButton" class="btn btn-outline">Next</button>
+        </div>
+  </div>
+      
+   <div class="container">
+        
+        
+        <table class="market-table"id="apiData">
+            <thead class="table-head">
+                <tr class="table-row table-title">
+                    <th class="table-heading" scope="col">Symbol</th>
+                    <th  class="table-heading"scope="col">Bid Price</th>
+                    <th  class="table-heading"scope="col">Ask Price</th>
+                </tr>
+            </thead>
+            <tbody class="table-body" id="apiData">
+                <!-- The fetched data will be displayed here -->
+                
+            </tbody>
+        </table>
+    </div>
+   
+    
+    </section>
+    </article>
+     </main> 
+    
+<script>
+    let currentPage = 1;
+    const recordsPerPage = 10;
+    let data = [];
+    let filteredData = [];
+
+    function displayData(pageData) {
+        let tableBody = '';
+        for(let i = 0; i < pageData.length; i++){
+            tableBody += '<tr class="table-row">' +
+
+                '<td class="table-data"><a href="coin_details.html?symbol=' + encodeURIComponent(pageData[i].symbol) + '"class="btn btn-outline">' + pageData[i].symbol + '</a></td>' +
+
+                '<td class="table-data last-price">' + pageData[i].bidPrice + '</td>' +
+                '<td class="table-data last-update">' + pageData[i].askPrice + '</td>' +
+                '</tr>';
+        }
+        $('#apiData tbody').html(tableBody);
+    }
+
+    function updateButtons() {
+        $('#previousButton').prop('disabled', currentPage == 1);
+        $('#nextButton').prop('disabled', currentPage == Math.ceil(filteredData.length / recordsPerPage));
+    }
+
+    $(document).ready(function() {
+        $.ajax({
+            url: 'https://api4.binance.com/api/v3/ticker/bookTicker',
+            type: 'GET',
+            success: function(res) {
+                data = res;
+                filteredData = data;
+                displayData(filteredData.slice(0, recordsPerPage));
+                updateButtons();
+            },
+            error: function(err) {
+                console.error(err);
+            }
+        });
+
+        $('#searchButton').click(function() {
+            const searchTerm = $('#symbolSearch').val().trim().toLowerCase();
+            filteredData = data.filter(item => item.symbol.toLowerCase().includes(searchTerm));
+            currentPage = 1;
+            displayData(filteredData.slice(0, recordsPerPage));
+            updateButtons();
+        });
+
+        $('#showAllButton').click(function() {
+            $('#symbolSearch').val('');
+            filteredData = data;
+            currentPage = 1;
+            displayData(filteredData.slice(0, recordsPerPage));
+            updateButtons();
+        });
+
+        $('#previousButton').click(function() {
+            currentPage = Math.max(currentPage - 1, 1);
+            displayData(filteredData.slice((currentPage-1)*recordsPerPage, currentPage*recordsPerPage));
+            updateButtons();
+        });
+
+        $('#nextButton').click(function() {
+            currentPage = Math.min(currentPage + 1, Math.ceil(filteredData.length / recordsPerPage));
+            displayData(filteredData.slice((currentPage-1)*recordsPerPage, currentPage*recordsPerPage));
+            updateButtons();
+        });
+    });
+
+    $(document).ready(function() {
+        $('#logoutButton').click(function(e) {
+            e.preventDefault(); // Prevent default link click action
+            $.ajax({
+                url: '/users/logout',
+                type: 'GET',
+                success: function(res) {
+                    alert(res); // Show success message
+                    // You may want to redirect the user to the login page here
+                    window.location.href = '/login.html';
+                },
+                error: function(err) {
+                    console.error(err);
+                }
+            });
+        });
+    });
+</script>
+<div style= "margin-top: auto" >
+  <footer class="footer">
+
+        <p class="copyright">
+          &copy; 2023 T2 Crypto All Rights Reserved by <a href="#" class="copyright-link">Team Two</a>
+        </p>
+
+        <ul class="social-list">
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-facebook"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-twitter"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-instagram"></ion-icon>
+            </a>
+          </li>
+
+          <li>
+            <a href="#" class="social-link">
+              <ion-icon name="logo-linkedin"></ion-icon>
+            </a>
+          </li>
+
+        </ul>
+
+      
+
+</footer>
+</div>
+ <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  
+
+</body>
+</html>
